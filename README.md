@@ -42,6 +42,6 @@ export default class LoginScreen extends React.Component {
 }
 ```
 
-Note: This client library is a modified version of https://github.com/wkh237/react-native-azure-ad to suit Microsoft AD B2C authentication.
+Note: This client library is a modified version of https://github.com/wkh237/react-native-azure-ad to suit Azure AD B2C authentication.
 
 I will add some more details at a later point.
