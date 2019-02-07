@@ -2,14 +2,14 @@ import Timer from "react-timer-mixin";
 import log from "./logger";
 
 const config = {
-  client_secret: "",
-  client_id: "",
-  redirect_uri: "",
+  client_secret: "", //required
+  client_id: "", //required
+  redirect_uri: "", //required
   token_uri: "", //required
   authority_host: "", //required
-  prompt: "",
+  prompt: "", //defaulted to login
   user_flow_policy: "", //required: e.g. B2C_1_signupsignin,
-  scope: "", //TODO should be an array and while passing seperate with space.
+  scope: "", //required
 };
 
 class B2CAuthentication {

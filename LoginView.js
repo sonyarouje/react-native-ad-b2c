@@ -88,10 +88,10 @@ export default class LoginView extends React.Component {
      * @return {string} The Authority host URI.
      */
     getLoginUrl = (url) => {
-        const authUrl = url; //"https://triguz.b2clogin.com/triguz.onmicrosoft.com/oauth2/v2.0/authorize";
+        const authUrl = url;
         const context = this.props.context || null;
         const redirect = context.getConfig().redirect_uri;
-        const prompt = context.getConfig().prompt;
+        const prompt = context.getConfig().prompt || "login";
         const userFlowPolicy = context.getConfig().user_flow_policy;
         const clientId = context.getConfig().client_id;
         const scope = context.getConfig().scope;
