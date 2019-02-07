@@ -1,6 +1,7 @@
 # react-native-ad-b2c
 React Native client to authenticate with Microsoft Active Directory B2C
 
+
 # Example
 
 ```
@@ -40,5 +41,7 @@ export default class LoginScreen extends React.Component {
   }
 }
 ```
+
+Note: This client library is a modified version of https://github.com/wkh237/react-native-azure-ad to suit Microsoft AD B2C authentication.
 
 I will add some more details at a later point.
