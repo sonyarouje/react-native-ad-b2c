@@ -18,7 +18,7 @@ export default class LoginScreen extends React.Component {
   render() {
     const b2cLogin = new B2CAuthentication({
       client_id: CLIENT_ID,
-      client_secret: "<key set it application/key>",
+      client_secret: "<key set in application/key>",
       user_flow_policy: "B2C_1_signupsignin",
       token_uri: "https://saroujetmp.b2clogin.com/saroujetmp.onmicrosoft.com/oauth2/v2.0/token",
       authority_host: "https://saroujetmp.b2clogin.com/saroujetmp.onmicrosoft.com/oauth2/v2.0/authorize",
