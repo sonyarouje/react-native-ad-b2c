@@ -1,5 +1,5 @@
 # react-native-ad-b2c
-React Native client to authenticate with Azure Active Directory B2C
+React Native client for Azure Active Directory B2C
 
 
 # Example
