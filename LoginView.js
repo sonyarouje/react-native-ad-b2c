@@ -111,14 +111,42 @@ export default class LoginView extends React.Component {
         }
     }
 
+   getPasswordResetUrl = (url) => {
+        const authUrl = url;
+        const context = this.props.context || null;
+        const redirect = context.getConfig().redirect_uri;
+        const prompt = context.getConfig().prompt || "login";
+        const passwordResetPolicy = context.getConfig().reset_password_policy;
+        const tenant = context.getConfig().tenant
+        const clientId = context.getConfig().client_id;
+        const scope = context.getConfig().scope;
+        if (context !== null) {
+            const result =
+                `${authUrl}/${tenant}/${passwordResetPolicy}/oauth2/v2.0/authorize?response_type=id_token` +
+                (scope ? `&scope=${scope.join(" ")}%20openid%20profile` : "") +
+                `&client_id=${clientId}` +
+                (redirect ? `&redirect_uri=${redirect}&nonce=rnad-${Date.now()}` : "") +
+                (prompt ? `&prompt=${prompt}` : "");
+            ;
+
+            console.log(result);
+            return result;
+        } else {
+            throw new Error("context should not be null/undefined.");
+        }
+    }
+
     /**
      * An interceptor for handling webview url change, when it detects possible
      * authorization code in url, it will triggers authentication flow.
      * @param  {object} e Navigation state change event object.
      */
     _handleADToken(e) {
+        const context = this.props.context;
+
         log.verbose("ADLoginView navigate to", e.url);
         if (this._lock) return true;
+        let errorDescription = /((\?|\&)error_description\=)[^\%]+/.exec(e.url);
         let code = /((\?|\&)code\=)[^\&]+/.exec(e.url);
         if (this._needRedirect) {
             // this._needRedirect = false
@@ -126,6 +154,22 @@ export default class LoginView extends React.Component {
         }
 
         if (this.props.onURLChange) this.props.onURLChange(e);
+
+        if (errorDescription !== null) {
+            let errorCode = String(errorDescription[0]).replace(/(\?|\&)?error_description\=/, "")
+            switch (errorCode) {
+                case "AADB2C90118":
+                        let url = 'https://login.microsoftonline.com/te'
+                    this.setState({
+                        page: this.getPasswordResetUrl(url),
+                        visible: true
+                    });
+                    return true;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         if (code !== null) {
             this._lock = true;
