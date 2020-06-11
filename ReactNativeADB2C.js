@@ -6,9 +6,10 @@ const config = {
   client_id: "", //required
   redirect_uri: "", //required
   token_uri: "", //required
+  reset_password_policy: 'B2C_1_pwdreset',
+  user_flow_policy: "", //required: e.g. B2C_1_signupsignin,
   authority_host: "", //required
   prompt: "", //defaulted to login
-  user_flow_policy: "", //required: e.g. B2C_1_signupsignin,
   scope: "", //required
 };
 
