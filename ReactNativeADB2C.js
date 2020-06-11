@@ -47,9 +47,10 @@ class B2CAuthentication {
   * }
   */
   assureToken = (credentials) => {
-    if (Date.now() < credentials.expires_on)
+    const currentUTCTime = Math.floor(new Date().getTime() / 1000);
+    if (currentUTCTime < credentials.expires_on){
       return new Promise.resolve(credentials.access_token);
-    else {
+    } else {
       return refreshToken(credentials.refresh_token);
     }
   };
