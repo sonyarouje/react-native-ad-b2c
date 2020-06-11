@@ -1,5 +1,6 @@
-import React, { Component } from "react";
-import { WebView, Dimensions } from "react-native";
+import React from "react";
+import { Dimensions } from "react-native";
+import { WebView } from 'react-native-webview';
 import log from "./logger";
 import B2CAuthentication from "./ReactNativeADB2C";
 
@@ -111,23 +112,24 @@ export default class LoginView extends React.Component {
         }
     }
 
-   getPasswordResetUrl = (url) => {
-        const authUrl = url;
+   getPasswordResetUrl = () => {
         const context = this.props.context || null;
+        const authUrl = context.getConfig().authority_host;
         const redirect = context.getConfig().redirect_uri;
-        const prompt = context.getConfig().prompt || "login";
+        const prompt = context.getConfig().prompt || 'login';
         const passwordResetPolicy = context.getConfig().reset_password_policy;
-        const tenant = context.getConfig().tenant
+        const tenant = context.getConfig().tenant;
         const clientId = context.getConfig().client_id;
         const scope = context.getConfig().scope;
         if (context !== null) {
-            const result =
-                `${authUrl}/${tenant}/${passwordResetPolicy}/oauth2/v2.0/authorize?response_type=id_token` +
-                (scope ? `&scope=${scope.join(" ")}%20openid%20profile` : "") +
-                `&client_id=${clientId}` +
-                (redirect ? `&redirect_uri=${redirect}&nonce=rnad-${Date.now()}` : "") +
-                (prompt ? `&prompt=${prompt}` : "");
-            ;
+			const result =
+				`${authUrl}?p=${passwordResetPolicy}` +
+				'&response_type=code' +
+				`&client_id=${clientId}` +
+				(redirect ? `&redirect_uri=${redirect}&nonce=rnad-${Date.now()}` : '') +
+				(prompt ? `&prompt=${prompt}` : '') +
+				'&response_mode=fragment' +
+				(scope ? `&scope=${scope.join('%20')}` : '');
 
             console.log(result);
             return result;
@@ -147,7 +149,10 @@ export default class LoginView extends React.Component {
         log.verbose("ADLoginView navigate to", e.url);
         if (this._lock) return true;
         let errorDescription = /((\?|\&)error_description\=)[^\%]+/.exec(e.url);
-        let code = /((\?|\&)code\=)[^\&]+/.exec(e.url);
+        // let code = /((\?|\&)code\=)[^\&]+/.exec(e.url);
+        //when using facebook integration, code comes after ? is not valid for getting access token
+        //look for the code comes after #
+        let code = /((\&|\#)code\=)[^\&]+/.exec(e.url);
         if (this._needRedirect) {
             // this._needRedirect = false
             return true;
@@ -159,12 +164,19 @@ export default class LoginView extends React.Component {
             let errorCode = String(errorDescription[0]).replace(/(\?|\&)?error_description\=/, "")
             switch (errorCode) {
                 case "AADB2C90118":
-                        let url = 'https://login.microsoftonline.com/te'
                     this.setState({
-                        page: this.getPasswordResetUrl(url),
+                        page: this.getPasswordResetUrl(),
                         visible: true
                     });
                     return true;
+                    break;
+                case 'AADB2C90091': //when user cancel to go back from the login page.
+                    this.setState({
+                        page: this.getLoginUrl(context.getConfig().authority_host),
+                        visible: true,
+                        policy: context.getConfig().user_flow_policy,
+                    });
+                    return false;
                     break;
                 default:
                     break;
@@ -174,7 +186,7 @@ export default class LoginView extends React.Component {
         if (code !== null) {
             this._lock = true;
             log.verbose("LoginView._handleADToken code=", code[0]);
-            code = String(code[0]).replace(/(\?|\&)?code\=/, "");
+            code = String(code[0]).replace(/(\&|\#)?code\=/, '');
             this.setState({ visible: !this.props.hideAfterLogin });
             this.props.onVisibilityChange && this.props.onVisibilityChange(false);
             this._getResourceAccessToken(code).catch(err => {
